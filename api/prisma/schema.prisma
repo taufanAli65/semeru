@@ -1,0 +1,217 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==========================
+// SERVICE: AUTHENTICATION
+// ==========================
+
+enum userRole {
+  SuperAdmin
+  Admin
+  Mahasiswa
+  Mentor
+}
+
+enum userStatus {
+  Active
+  NonActive
+}
+
+model users {
+  user_id   String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  password  String
+  created_at  DateTime @default(now())
+  updated_at DateTime @updatedAt
+  role      userRole
+
+  user_information user_information?
+  trn_activity_registration trn_activity_registration[]
+  monev_periods monev_periods[]
+  mentored_periods monev_periods[] @relation("MentorRelation")
+  verified_records monev_records[] @relation("VerifiedByRelation")
+
+  @@map("users")
+}
+
+model user_information {
+  user_information_id String  @id @default(uuid()) @db.Uuid
+  user_id String @db.Uuid
+  name String
+  nim String
+  nomor_whatsapp String
+  program_studi String
+  fakultas String
+  semester  String
+  universitas String
+  status  userStatus
+
+  user users @relation(fields: [user_id], references: [user_id])
+
+  @@unique([user_id])
+  @@map("user_information")
+}
+
+// ==========================
+// SERVICE: LAGA (Monev & Event)
+// ==========================
+
+enum activityCategory {
+  Kompetisi
+  Pelatihan
+  Seminar
+}
+
+enum activityStatus {
+  Active
+  NonActive
+  Done
+  Created
+}
+
+enum userActivityStatus {
+  Registered // Baru daftar
+  Attended   // Hadir
+  NotAttended // Bolos
+  Pass       // Lulus (opsional buat pelatihan)
+  Fail       // Gagal (opsional)
+}
+
+enum activityImageCategory {
+  Certificate
+  Poster
+}
+
+model activity {
+  activity_id String @id @default(uuid()) @db.Uuid
+  title String
+  description String
+  start_date DateTime @db.Date
+  end_date DateTime @db.Date
+  status activityStatus
+  limit Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  activity_images activity_images[]
+  trn_activity_registration trn_activity_registration[]
+
+  @@map("activity")
+}
+
+model activity_images {
+  activity_image_id String @id @default(uuid()) @db.Uuid
+  activity_id String @db.Uuid
+  image_url String
+  image_category activityImageCategory
+  alternative_text String
+
+  activity activity @relation(fields: [activity_id], references: [activity_id])
+
+  @@map("activity_images")
+}
+
+model trn_activity_registration {
+  registration_id String @id @default(uuid()) @db.Uuid
+  activity_id String @db.Uuid
+
+  user_id String? @db.Uuid
+
+  participant_name String
+  participant_email String
+  participant_whatsapp String
+
+  institution_origin String
+  registered_at DateTime @default(now())
+  status userActivityStatus
+
+  activity activity @relation(fields: [activity_id], references: [activity_id])
+  user users? @relation(fields: [user_id], references: [user_id])
+
+  @@map("trn_activity_registration")
+}
+
+// ==========================
+// SERVICE: JEJAK (Monev)
+// ==========================
+
+enum monevCategory {
+  Prestasi            // Lomba, Juara
+  Seminar             // Peserta/Pembicara
+  Kepemimpinan        // Organisasi
+  Pelatihan           // Workshop/Sertifikasi
+  Akademik            // IPK, IPS
+  Publikasi           // Jurnal, Paper
+  Kecendekiawanan     // Attitude, Social activity
+}
+
+enum periodStatus {
+  Incomplete // Masih ada item yang kurang/belum diupload
+  Complete   // Semua syarat semester ini terpenuhi
+}
+
+enum recordStatus {
+  Pending   // Baru upload, menunggu dosen wali/admin cek
+  Verified  // Disetujui
+  Fail      // Ditolak (misal: file buram, bukti tidak valid)
+}
+
+model monev_periods {
+  period_id String @id @default(uuid()) @db.Uuid
+  user_id String @db.Uuid
+  mentor String @db.Uuid
+  semester Int
+
+  status periodStatus @default(Incomplete)
+
+  general_feedback String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user users @relation(fields: [user_id], references: [user_id])
+  mentor_user users @relation("MentorRelation", fields: [mentor], references: [user_id])
+  monev_records monev_records[]
+
+  @@unique([user_id, semester])
+  @@map("monev_periods")
+}
+
+model monev_records {
+  record_id String @id @default(uuid()) @db.Uuid
+  period_id String @db.Uuid
+
+  category monevCategory
+
+  title String
+  description String?
+
+  file_url String
+
+  grade_value Float?
+
+  status recordStatus @default(Pending)
+
+  reviewer_notes String?
+  verified_by String? @db.Uuid
+  verified_at DateTime?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  period monev_periods @relation(fields: [period_id], references: [period_id], onDelete: Cascade)
+  verified_by_user users? @relation("VerifiedByRelation", fields: [verified_by], references: [user_id])
+
+  @@map("monev_records")
+}
