@@ -6,6 +6,7 @@ import { errorHandler } from './middlewares/errorHandler.middleware';
 import { allowedOrigins } from './config/index.config';
 
 import authRouter from './routes/authentication.router';
+import { rateLimiter } from './middlewares/rateLimiter.middleware';
 
 const app = express();
 
@@ -15,6 +16,12 @@ app.use(cors({ origin: allowedOrigins }));
 app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Trust first proxy (e.g., when behind a load balancer) so rate limiter sees real client IP
+app.set('trust proxy', 1);
+
+// Basic rate limiting to protect the API
+app.use(rateLimiter);
 
 
 app.get('/api/v1/health', (req, res) => { res.status(200).json({ status: 'OK', message: 'Server is running' }); });
