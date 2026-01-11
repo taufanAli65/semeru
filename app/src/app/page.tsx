@@ -1,27 +1,18 @@
-'use client';
-
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/lib/store';
+import { LandingNavbar } from '@/features/landing/components/LandingNavbar';
+import { HeroSection } from '@/features/landing/components/HeroSection';
+import { LandingFooter } from '@/features/landing/components/LandingFooter';
 
 export default function Home() {
-  const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/dashboard');
-    } else {
-      router.push('/login');
-    }
-  }, [isAuthenticated, router]);
-
   return (
-    <div className="flex min-h-screen items-center justify-center bg-semeru-50">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-semeru-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Loading...</p>
-      </div>
-    </div>
+    <main className="min-h-screen bg-gray-50">
+      <LandingNavbar />
+      
+      <HeroSection />
+
+      {/* Bagian Features bisa ditambahkan di sini secara modular nantinya */}
+      {/* <FeatureSection /> */}
+      
+      <LandingFooter />
+    </main>
   );
 }
