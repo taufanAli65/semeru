@@ -1,6 +1,6 @@
 import { UUID } from "node:crypto";
 import { prisma } from "../../config/prisma.config";
-import { userRole, userStatus } from "@prisma/client";
+import { userRole, userStatus, Prisma } from "@prisma/client";
 import { user, updateUserInfo } from "../../types/authentication.type";
 import { hashPassword, comparePassword } from "../../helpers/password.helper";
 
@@ -48,7 +48,7 @@ async function getAllUsers(user_id: UUID): Promise<user[]> {
         },
     });
 
-    return users.map((u) => {
+    return users.map((u: { user_id: string; email: string; role: userRole; user_information: any }) => {
         if (!u.user_information) {
             throw new Error("User information not found");
         }
@@ -134,7 +134,7 @@ async function getUserByRole(user_id: UUID, role: userRole): Promise<user[]> {
         },
     });
 
-    return users.map((u) => {
+    return users.map((u: { user_id: string; email: string; role: userRole; user_information: any }) => {
         if (!u.user_information) {
             throw new Error("User information not found");
         }
@@ -158,7 +158,7 @@ async function createUser(email: string, password: string, name: string, nim: st
 
     const hashedPassword = await hashPassword(password);
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const newUser = await tx.users.create({
             data: {
                 email,
