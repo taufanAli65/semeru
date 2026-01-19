@@ -6,6 +6,7 @@ import { errorHandler } from './middlewares/errorHandler.middleware';
 import { allowedOrigins } from './config/index.config';
 
 import authRouter from './routes/authentication.router';
+import jejakRouter from './routes/jejak.router';
 import { rateLimiter } from './middlewares/rateLimiter.middleware';
 
 const app = express();
@@ -26,6 +27,7 @@ app.use(rateLimiter);
 
 app.get('/api/v1/health', (req, res) => { res.status(200).json({ status: 'OK', message: 'Server is running' }); });
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/jejak', jejakRouter);
 
 // Error handling middleware
 app.use(errorHandler);
