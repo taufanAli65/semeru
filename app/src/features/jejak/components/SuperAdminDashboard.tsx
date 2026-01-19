@@ -20,7 +20,7 @@ import api from '@/lib/axios';
 interface User {
     user_id: string;
     email: string;
-    role: string;
+    roles: string[];
     created_at: string;
     user_information?: {
         name: string;
@@ -48,8 +48,8 @@ export const SuperAdminDashboard = () => {
     // Stats (mocked for now as we focus on User Management)
     const stats = {
         totalUsers: users.length || 0,
-        activeAdmins: users.filter(u => u.role === 'Admin').length,
-        activeMentors: users.filter(u => u.role === 'Mentor').length
+        activeAdmins: users.filter(u => u.roles.includes('Admin')).length,
+        activeMentors: users.filter(u => u.roles.includes('Mentor')).length
     };
 
     useEffect(() => {
@@ -88,7 +88,7 @@ export const SuperAdminDashboard = () => {
 
     const handleUpdateRole = async (userId: string, newRole: string) => {
         try {
-            await api.patch(`/users/${userId}/role`, { role: newRole });
+            await api.patch(`/users/${userId}/role`, { roles: [newRole] });
 
             showToast.success('Role pengguna berhasil diperbarui');
             setEditingUser(null);
@@ -195,12 +195,12 @@ export const SuperAdminDashboard = () => {
                                                         <td className="px-6 py-4 text-gray-600">{user.email}</td>
                                                         <td className="px-6 py-4">
                                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                ${user.role === 'SuperAdmin' ? 'bg-purple-100 text-purple-800' :
-                                                                    user.role === 'Admin' ? 'bg-blue-100 text-blue-800' :
-                                                                        user.role === 'Mentor' ? 'bg-green-100 text-green-800' :
+                                ${user.roles.includes('SuperAdmin') ? 'bg-purple-100 text-purple-800' :
+                                                                    user.roles.includes('Admin') ? 'bg-blue-100 text-blue-800' :
+                                                                        user.roles.includes('Mentor') ? 'bg-green-100 text-green-800' :
                                                                             'bg-gray-100 text-gray-800'
                                                                 }`}>
-                                                                {user.role}
+                                                                {user.roles.join(', ')}
                                                             </span>
                                                         </td>
                                                         <td className="px-6 py-4 text-right">
@@ -208,7 +208,7 @@ export const SuperAdminDashboard = () => {
                                                                 <div className="flex items-center justify-end gap-2">
                                                                     <select
                                                                         className="text-sm rounded border-gray-200"
-                                                                        defaultValue={user.role}
+                                                                        defaultValue={user.roles[0]}
                                                                         onChange={(e) => handleUpdateRole(user.user_id, e.target.value)}
                                                                     >
                                                                         <option value="Mahasiswa">Mahasiswa</option>
