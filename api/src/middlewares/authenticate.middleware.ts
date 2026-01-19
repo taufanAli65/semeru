@@ -10,7 +10,7 @@ declare global {
       user?: {
         user_id: string;
         email: string;
-        role: string;
+        roles: string[];
       };
     }
   }
@@ -38,7 +38,7 @@ export const authenticate = async (
     const decoded = jwt.verify(token, JWT_SECRET) as {
       user_id: string;
       email: string;
-      role: string;
+      roles: string[];
     };
 
     // Optional: Check if user still exists in database
@@ -47,7 +47,7 @@ export const authenticate = async (
       select: {
         user_id: true,
         email: true,
-        role: true
+        roles: true
       }
     });
 

@@ -74,11 +74,11 @@ export const LoginForm = () => {
                 <input
                   id="email"
                   name="email"
-                  type="text"
+                  type="email"
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="Username"
+                  placeholder="Input your email"
                   className="w-full px-0 py-3 border-0 border-b-2 border-gray-300 focus:border-[#0d6e6e] focus:outline-none focus:ring-0 text-gray-700 placeholder-gray-400 bg-transparent transition-colors"
                 />
               </div>

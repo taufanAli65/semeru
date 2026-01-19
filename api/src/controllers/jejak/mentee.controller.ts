@@ -143,9 +143,10 @@ export const getCurrentPeriodRecordsController = async (req: Request, res: Respo
         const currentPeriodData = await getCurrentPeriodRecords(userId);
 
         if (!currentPeriodData) {
-            return res.status(404).json({
-                success: false,
-                message: 'Periode monev saat ini tidak ditemukan. Silakan hubungi mentor Anda.'
+            return res.status(200).json({
+                success: true,
+                data: null,
+                message: 'Periode monev saat ini belum tersedia.'
             });
         }
 

@@ -14,7 +14,7 @@ export const useAuth = (): UseAuthReturn => {
       setError(null);
 
       const response = await authService.login(data);
-      storeLogin(response.user, response.tokens.accessToken);
+      storeLogin(response.user, response.accessToken);
 
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed');

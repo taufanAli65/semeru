@@ -104,7 +104,7 @@ export const RegisterForm = () => {
                   required
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="Username"
+                  placeholder="Full Name"
                   className="w-full px-0 py-3 border-0 border-b-2 border-gray-300 focus:border-[#0d6e6e] focus:outline-none focus:ring-0 text-gray-700 placeholder-gray-400 bg-transparent transition-colors"
                 />
               </div>

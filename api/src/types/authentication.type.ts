@@ -6,15 +6,15 @@ interface userInformation {
     nomor_whatsapp: string
     program_studi: string
     fakultas: string
-    semester:  string
+    semester: string
     universitas: string
-    status:  userStatus
+    status: userStatus
 }
 
 export interface user {
     user_id: string;
     email: string;
-    role: userRole;
+    roles: userRole[];
     information: userInformation;
 }
 
@@ -24,6 +24,6 @@ export interface updateUserInfo {
     nomor_whatsapp?: string
     program_studi?: string
     fakultas?: string
-    semester?:  string
+    semester?: string
     universitas?: string
 }

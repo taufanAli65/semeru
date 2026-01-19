@@ -89,11 +89,11 @@ export const RecordsList = ({ records, onRecordUpdate }: RecordsListProps) => {
       {records.map((record) => (
         <Card key={record.record_id} className="hover:shadow-md transition-shadow">
           <CardContent className="p-6">
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
+                <div className="flex items-center gap-3 mb-2 flex-wrap">
                   {getStatusIcon(record.status)}
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-lg font-semibold text-gray-900 break-words">
                     {record.title}
                   </h3>
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(record.status)}`}>
@@ -101,23 +101,27 @@ export const RecordsList = ({ records, onRecordUpdate }: RecordsListProps) => {
                   </span>
                 </div>
 
-                <p className="text-gray-600 mb-3">{record.description}</p>
+                <p className="text-gray-600 mb-3 text-sm">{record.description}</p>
 
-                <div className="flex items-center gap-4 text-sm text-gray-500">
+                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                   <span className="flex items-center gap-1">
                     <FileText className="h-4 w-4" />
                     {record.category}
                   </span>
                   {record.grade_value && (
+                    <span className="hidden sm:inline-block">•</span>
+                  )}
+                  {record.grade_value && (
                     <span>Grade: {record.grade_value}</span>
                   )}
+                  <span className="hidden sm:inline-block">•</span>
                   <span>
                     {new Date(record.created_at).toLocaleDateString()}
                   </span>
                 </div>
 
                 {record.reviewer_notes && (
-                  <div className="mt-3 p-3 bg-gray-50 rounded-md">
+                  <div className="mt-3 p-3 bg-gray-50 rounded-md border border-gray-100">
                     <p className="text-sm text-gray-700">
                       <strong>Review Notes:</strong> {record.reviewer_notes}
                     </p>
@@ -125,12 +129,13 @@ export const RecordsList = ({ records, onRecordUpdate }: RecordsListProps) => {
                 )}
               </div>
 
-              <div className="flex items-center gap-2 ml-4">
+              <div className="flex items-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 sm:ml-4 border-gray-100">
                 {record.file_url && (
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => handleDownload(record.file_url!, record.title)}
+                    className="flex-1 sm:flex-none"
                   >
                     <Download className="h-4 w-4" />
                   </Button>
@@ -140,6 +145,7 @@ export const RecordsList = ({ records, onRecordUpdate }: RecordsListProps) => {
                   variant="outline"
                   size="sm"
                   disabled={record.status === 'Verified'}
+                  className="flex-1 sm:flex-none"
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
@@ -149,7 +155,7 @@ export const RecordsList = ({ records, onRecordUpdate }: RecordsListProps) => {
                   size="sm"
                   onClick={() => handleDelete(record.record_id)}
                   disabled={deletingId === record.record_id || record.status === 'Verified'}
-                  className="text-red-600 hover:text-red-700"
+                  className="flex-1 sm:flex-none text-red-600 hover:text-red-700 hover:bg-red-50"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>

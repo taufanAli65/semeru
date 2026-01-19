@@ -55,5 +55,5 @@ export interface RegisterRequest {
 
 export interface LoginResponse {
   user: User;
-  tokens: AuthTokens;
+  accessToken: string;
 }

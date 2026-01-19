@@ -11,19 +11,13 @@ export const authorize = (...allowedRoles: userRole[]) => {
       return;
     }
 
-    // Convert string role to enum value
-    const userRoleValue = userRole[req.user.role as keyof typeof userRole];
+    // Check if user has any of the allowed roles
+    const hasAllowedRole = req.user.roles.some((roleStr) => {
+      const roleEnum = userRole[roleStr as keyof typeof userRole];
+      return allowedRoles.includes(roleEnum);
+    });
 
-    if (userRoleValue === undefined) {
-      res.status(403).json({
-        success: false,
-        message: 'Invalid user role'
-      });
-      return;
-    }
-
-    // Check if user's role is in allowed roles
-    if (!allowedRoles.includes(userRoleValue)) {
+    if (!hasAllowedRole) {
       res.status(403).json({
         success: false,
         message: 'Insufficient permissions'

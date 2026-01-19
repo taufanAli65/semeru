@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { PrismaClient, userRole } from '@prisma/client';
+import { PrismaClient, userRole, userStatus } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { DATABASE_URL } from '../src/config/index.config';
 
@@ -25,16 +25,48 @@ async function main() {
     where: { email },
     update: {
       password: hashedPassword,
-      role: userRole.SuperAdmin,
+      roles: [userRole.SuperAdmin],
     },
     create: {
       email,
       password: hashedPassword,
-      role: userRole.SuperAdmin,
+      roles: [userRole.SuperAdmin],
     },
   });
 
-  console.log('SuperAdmin account seeded');
+  // Get the created user to get user_id
+  const user = await prisma.users.findUnique({
+    where: { email },
+  });
+
+  if (user) {
+    await prisma.user_information.upsert({
+      where: { user_id: user.user_id },
+      update: {
+        name: "Super Admin",
+        nim: "00000000",
+        nomor_whatsapp: "+6281234567890",
+        program_studi: "superAdmin",
+        fakultas: "superAdmin",
+        semester: "1",
+        universitas: "superAdmin",
+        status: userStatus.Active,
+      },
+      create: {
+        user_id: user.user_id,
+        name: "Super Admin",
+        nim: "00000000",
+        nomor_whatsapp: "+6281234567890",
+        program_studi: "superAdmin",
+        fakultas: "superAdmin",
+        semester: "1",
+        universitas: "superAdmin",
+        status: userStatus.Active,
+      },
+    });
+  }
+
+  console.log('SuperAdmin account and information seeded');
 }
 
 main()

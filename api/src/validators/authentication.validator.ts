@@ -34,3 +34,7 @@ export const userIdSchema = z.object({
 export const roleSchema = z.object({
   role: z.enum(['SuperAdmin', 'Admin', 'Mahasiswa', 'Mentor']),
 });
+
+export const userRolesSchema = z.object({
+  roles: z.array(z.enum(['SuperAdmin', 'Admin', 'Mahasiswa', 'Mentor'])),
+});

@@ -20,7 +20,10 @@ class MentorService {
     params?: { semester?: number; status?: 'Complete' | 'Incomplete'; page?: number; limit?: number }
   ): Promise<MenteeListResponse> {
     const response = await api.get(`/jejak/mentor/${mentorId}/mentees`, { params });
-    return response.data.data;
+    return {
+      items: response.data.data,
+      meta: response.data.meta
+    };
   }
 
   // Approve/Reject monev record

@@ -3,6 +3,8 @@ import { prisma } from "../../config/prisma.config";
 import { userRole, userStatus, Prisma } from "@prisma/client";
 import { user, updateUserInfo } from "../../types/authentication.type";
 import { hashPassword, comparePassword } from "../../helpers/password.helper";
+import jwt, { SignOptions } from 'jsonwebtoken';
+import { JWT_SECRET, JWT_EXPIRES_IN } from '../../config/index.config';
 
 
 async function getUserById(userId: string): Promise<user> {
@@ -11,7 +13,7 @@ async function getUserById(userId: string): Promise<user> {
         select: {
             user_id: true,
             email: true,
-            role: true,
+            roles: true,
             user_information: true,
         },
     });
@@ -22,20 +24,20 @@ async function getUserById(userId: string): Promise<user> {
     return {
         user_id: user.user_id,
         email: user.email,
-        role: user.role,
+        roles: user.roles,
         information: user.user_information,
     };
 }
 
 async function getAllUsers(user_id: UUID): Promise<user[]> {
-    const isSuperAdmin = await prisma.users.findUnique({
+    const requester = await prisma.users.findUnique({
         where: { user_id },
         select: {
-            role: true,
+            roles: true,
         },
     });
 
-    if (isSuperAdmin?.role !== userRole.SuperAdmin) {
+    if (!requester?.roles.includes(userRole.SuperAdmin)) {
         throw new Error("Access denied. SuperAdmin role required.");
     }
 
@@ -43,19 +45,19 @@ async function getAllUsers(user_id: UUID): Promise<user[]> {
         select: {
             user_id: true,
             email: true,
-            role: true,
+            roles: true,
             user_information: true,
         },
     });
 
-    return users.map((u: { user_id: string; email: string; role: userRole; user_information: any }) => {
+    return users.map((u: { user_id: string; email: string; roles: userRole[]; user_information: any }) => {
         if (!u.user_information) {
             throw new Error("User information not found");
         }
         return {
             user_id: u.user_id,
             email: u.email,
-            role: u.role,
+            roles: u.roles,
             information: u.user_information,
         };
     });
@@ -65,11 +67,11 @@ async function deleteUserById(requesterId: UUID, userIdToDelete: UUID): Promise<
     const requester = await prisma.users.findUnique({
         where: { user_id: requesterId },
         select: {
-            role: true,
+            roles: true,
         },
     });
 
-    if (requester?.role !== userRole.SuperAdmin) {
+    if (!requester?.roles.includes(userRole.SuperAdmin)) {
         throw new Error("Access denied. SuperAdmin role required.");
     }
 
@@ -86,15 +88,15 @@ async function deleteUserById(requesterId: UUID, userIdToDelete: UUID): Promise<
     });
 }
 
-async function changeUserRole(requesterId: UUID, userIdToChange: UUID, newRole: userRole): Promise<void> {
+async function updateUserRoles(requesterId: UUID, userIdToChange: UUID, newRoles: userRole[]): Promise<void> {
     const requester = await prisma.users.findUnique({
         where: { user_id: requesterId },
         select: {
-            role: true,
+            roles: true,
         },
     });
 
-    if (requester?.role !== userRole.SuperAdmin) {
+    if (!requester?.roles.includes(userRole.SuperAdmin)) {
         throw new Error("Access denied. SuperAdmin role required.");
     }
 
@@ -108,40 +110,44 @@ async function changeUserRole(requesterId: UUID, userIdToChange: UUID, newRole: 
 
     await prisma.users.update({
         where: { user_id: userIdToChange },
-        data: { role: newRole },
+        data: { roles: newRoles },
     });
 }
 
 async function getUserByRole(user_id: UUID, role: userRole): Promise<user[]> {
-    const isSuperAdmin = await prisma.users.findUnique({
+    const requester = await prisma.users.findUnique({
         where: { user_id },
         select: {
-            role: true,
+            roles: true,
         },
     });
 
-    if (isSuperAdmin?.role !== userRole.SuperAdmin) {
+    if (!requester?.roles.includes(userRole.SuperAdmin)) {
         throw new Error("Access denied. SuperAdmin role required.");
     }
 
     const users = await prisma.users.findMany({
-        where: { role },
+        where: {
+            roles: {
+                has: role
+            }
+        },
         select: {
             user_id: true,
             email: true,
-            role: true,
+            roles: true,
             user_information: true,
         },
     });
 
-    return users.map((u: { user_id: string; email: string; role: userRole; user_information: any }) => {
+    return users.map((u: { user_id: string; email: string; roles: userRole[]; user_information: any }) => {
         if (!u.user_information) {
             throw new Error("User information not found");
         }
         return {
             user_id: u.user_id,
             email: u.email,
-            role: u.role,
+            roles: u.roles,
             information: u.user_information,
         };
     });
@@ -163,7 +169,7 @@ async function createUser(email: string, password: string, name: string, nim: st
             data: {
                 email,
                 password: hashedPassword,
-                role: userRole.Mahasiswa,
+                roles: [userRole.Mahasiswa],
             },
         });
 
@@ -184,7 +190,7 @@ async function createUser(email: string, password: string, name: string, nim: st
         return {
             user_id: newUser.user_id,
             email: newUser.email,
-            role: newUser.role,
+            roles: newUser.roles,
             information: userInfo,
         };
     });
@@ -198,7 +204,7 @@ async function updateUserInformation(userId: string, updatedInfo: updateUserInfo
         select: {
             user_id: true,
             email: true,
-            role: true,
+            roles: true,
             user_information: true,
         },
     });
@@ -215,19 +221,19 @@ async function updateUserInformation(userId: string, updatedInfo: updateUserInfo
     return {
         user_id: user.user_id,
         email: user.email,
-        role: user.role,
+        roles: user.roles,
         information: updatedUserInfo,
     };
 }
 
-async function login(email: string, password: string): Promise<user> {
+async function login(email: string, password: string): Promise<{ user: user; accessToken: string }> {
     const user = await prisma.users.findUnique({
         where: { email },
         select: {
             user_id: true,
             email: true,
             password: true,
-            role: true,
+            roles: true,
             user_information: true,
         },
     });
@@ -245,12 +251,28 @@ async function login(email: string, password: string): Promise<user> {
         throw new Error("User information not found");
     }
 
-    return {
+    const userData = {
         user_id: user.user_id,
         email: user.email,
-        role: user.role,
+        roles: user.roles,
         information: user.user_information,
+    };
+
+    // Generate JWT token
+    const accessToken = jwt.sign(
+        {
+            user_id: user.user_id,
+            email: user.email,
+            roles: user.roles
+        },
+        JWT_SECRET,
+        { expiresIn: JWT_EXPIRES_IN } as SignOptions
+    );
+
+    return {
+        user: userData,
+        accessToken,
     };
 }
 
-export { getUserById, getAllUsers, deleteUserById, changeUserRole, getUserByRole, createUser, updateUserInformation, login };
+export { getUserById, getAllUsers, deleteUserById, updateUserRoles, getUserByRole, createUser, updateUserInformation, login };

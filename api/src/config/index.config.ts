@@ -5,8 +5,8 @@ dotenv.config();
 const NODE_ENV = process.env.NODE_ENV || "development";
 let PORT = process.env.PORT || 8000;
 let DATABASE_URL = process.env.DATABASE_URL || "postgresql://postgres.postgress:postgres@localhost:5432/semeru_authentication_db";
-let JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production";
-let JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "24h";
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production";
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "24h";
 const logLevel = process.env.LOG_LEVEL || 'DEBUG';
 const logDirectory = process.env.LOG_DIRECTORY || 'logs';
 const originsString = process.env.ALLOWED_ORIGINS;
@@ -19,8 +19,6 @@ if (NODE_ENV !== "development" && NODE_ENV === "production") {
     
     PORT = process.env.PORT || PORT;
     DATABASE_URL = process.env.DATABASE_URL || DATABASE_URL;
-    JWT_SECRET = process.env.JWT_SECRET || JWT_SECRET;
-    JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || JWT_EXPIRES_IN;
     allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : allowedOrigins;
 
     logger.info("Configuration loaded for production environment.");

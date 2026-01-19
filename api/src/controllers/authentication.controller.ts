@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { getUserById, getAllUsers, deleteUserById, changeUserRole, getUserByRole, createUser, updateUserInformation, login } from '../services/authentication/user.service';
+import { getUserById, getAllUsers, deleteUserById, updateUserRoles, getUserByRole, createUser, updateUserInformation, login } from '../services/authentication/user.service';
 import { validate } from '../helpers/validator.helper';
-import { loginSchema, registerSchema, updateUserInfoSchema, userIdSchema, roleSchema } from '../validators/authentication.validator';
+import { loginSchema, registerSchema, updateUserInfoSchema, userIdSchema, roleSchema, userRolesSchema } from '../validators/authentication.validator';
 import { userRole } from '@prisma/client';
 import { UUID } from 'node:crypto';
 
@@ -9,12 +9,15 @@ export const loginController = async (req: Request, res: Response) => {
   try {
     const { email, password } = validate(loginSchema, req.body);
 
-    const user = await login(email, password);
+    const result = await login(email, password);
 
     res.status(200).json({
       success: true,
       message: 'Login berhasil',
-      data: user,
+      data: {
+        user: result.user,
+        accessToken: result.accessToken,
+      },
     });
   } catch (error) {
     res.status(401).json({
@@ -111,7 +114,7 @@ export const deleteUserController = async (req: Request, res: Response) => {
   }
 };
 
-export const changeUserRoleController = async (req: Request, res: Response) => {
+export const updateUserRolesController = async (req: Request, res: Response) => {
   try {
     const requesterId = req.user?.user_id;
     if (!requesterId) {
@@ -122,9 +125,9 @@ export const changeUserRoleController = async (req: Request, res: Response) => {
     }
 
     const { userId } = validate(userIdSchema, req.params);
-    const { role } = validate(roleSchema, req.body);
+    const { roles } = validate(userRolesSchema, req.body);
 
-    await changeUserRole(requesterId as UUID, userId as UUID, role as userRole);
+    await updateUserRoles(requesterId as UUID, userId as UUID, roles as userRole[]);
 
     res.status(200).json({
       success: true,
