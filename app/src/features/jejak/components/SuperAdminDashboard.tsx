@@ -6,6 +6,7 @@ import { Sidebar, SidebarItem } from '@/components/layouts/Sidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Modal, ModalHeader, ModalBody, ModalFooter } from '@/components/ui/Modal';
 import {
     LayoutDashboard,
     Users,
@@ -44,6 +45,9 @@ export const SuperAdminDashboard = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [search, setSearch] = useState('');
     const [editingUser, setEditingUser] = useState<User | null>(null);
+    const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+
+    const availableRoles = ['SuperAdmin', 'Admin', 'Mentor', 'Mahasiswa'];
 
     // Stats (mocked for now as we focus on User Management)
     const stats = {
@@ -86,9 +90,24 @@ export const SuperAdminDashboard = () => {
         loadUsers(1);
     };
 
-    const handleUpdateRole = async (userId: string, newRole: string) => {
+    const handleEditClick = (user: User) => {
+        setEditingUser(user);
+        setSelectedRoles(user.roles);
+    };
+
+    const handleRoleToggle = (role: string) => {
+        setSelectedRoles(prev =>
+            prev.includes(role)
+                ? prev.filter(r => r !== role)
+                : [...prev, role]
+        );
+    };
+
+    const handleSaveRoles = async () => {
+        if (!editingUser) return;
+
         try {
-            await api.patch(`/users/${userId}/role`, { roles: [newRole] });
+            await api.patch(`/users/${editingUser.user_id}/role`, { roles: selectedRoles });
 
             showToast.success('Role pengguna berhasil diperbarui');
             setEditingUser(null);
@@ -204,36 +223,15 @@ export const SuperAdminDashboard = () => {
                                                             </span>
                                                         </td>
                                                         <td className="px-6 py-4 text-right">
-                                                            {editingUser?.user_id === user.user_id ? (
-                                                                <div className="flex items-center justify-end gap-2">
-                                                                    <select
-                                                                        className="text-sm rounded border-gray-200"
-                                                                        defaultValue={user.roles[0]}
-                                                                        onChange={(e) => handleUpdateRole(user.user_id, e.target.value)}
-                                                                    >
-                                                                        <option value="Mahasiswa">Mahasiswa</option>
-                                                                        <option value="Mentor">Mentor</option>
-                                                                        <option value="Admin">Admin</option>
-                                                                        <option value="SuperAdmin">SuperAdmin</option>
-                                                                    </select>
-                                                                    <Button
-                                                                        size="sm"
-                                                                        variant="ghost"
-                                                                        onClick={() => setEditingUser(null)}
-                                                                    >
-                                                                        Cancel
-                                                                    </Button>
-                                                                </div>
-                                                            ) : (
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="outline"
-                                                                    onClick={() => setEditingUser(user)}
-                                                                >
-                                                                    <Edit2 className="h-4 w-4 mr-1" />
-                                                                    Edit Role
-                                                                </Button>
-                                                            )}
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                                onClick={() => handleEditClick(user)}
+                                                            >
+                                                                <Edit2 className="h-4 w-4 mr-1" />
+                                                                Edit Role
+                                                            </Button>
+
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -270,6 +268,38 @@ export const SuperAdminDashboard = () => {
                         )}
                     </div>
                 </main>
+
+                <Modal isOpen={!!editingUser} onClose={() => setEditingUser(null)}>
+                    <ModalHeader>
+                        <h2 className="text-lg font-bold">Edit User Roles</h2>
+                        <p className="text-sm text-gray-500">
+                            Select roles for {editingUser?.user_information?.name || editingUser?.email}
+                        </p>
+                    </ModalHeader>
+                    <ModalBody>
+                        <div className="space-y-3">
+                            {availableRoles.map(role => (
+                                <label key={role} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                    <input
+                                        type="checkbox"
+                                        className="h-4 w-4 text-semeru-600 rounded border-gray-300 focus:ring-semeru-500"
+                                        checked={selectedRoles.includes(role)}
+                                        onChange={() => handleRoleToggle(role)}
+                                    />
+                                    <span className="text-sm font-medium text-gray-700">{role}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button variant="ghost" onClick={() => setEditingUser(null)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleSaveRoles}>
+                            Save Changes
+                        </Button>
+                    </ModalFooter>
+                </Modal>
             </div>
         </div>
     );

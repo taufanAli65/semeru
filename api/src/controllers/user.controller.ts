@@ -1,13 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../config/prisma.config';
-import { userRole } from '@prisma/client';
 import { validate } from '../helpers/validator.helper';
-import { z } from 'zod';
-
-// Validators
-const updateUserRolesSchema = z.object({
-    roles: z.array(z.nativeEnum(userRole))
-});
+import { updateUserRolesSchema } from '../validators/user.validator';
 
 // Get all users
 export const getAllUsers = async (req: Request, res: Response) => {
