@@ -13,13 +13,13 @@ export const loginController = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: 'Login successful',
+      message: 'Login berhasil',
       data: user,
     });
   } catch (error) {
     res.status(401).json({
       success: false,
-      message: error instanceof Error ? error.message : 'Login failed',
+      message: error instanceof Error ? error.message : 'Login gagal',
     });
   }
 };
@@ -32,13 +32,13 @@ export const registerController = async (req: Request, res: Response) => {
 
     res.status(201).json({
       success: true,
-      message: 'User registered successfully',
+      message: 'Pengguna berhasil didaftarkan',
       data: user,
     });
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: error instanceof Error ? error.message : 'Registration failed',
+      message: error instanceof Error ? error.message : 'Pendaftaran gagal',
     });
   }
 };
@@ -56,7 +56,7 @@ export const getUserByIdController = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(404).json({
       success: false,
-      message: error instanceof Error ? error.message : 'User not found',
+      message: error instanceof Error ? error.message : 'Pengguna tidak ditemukan',
     });
   }
 };
@@ -67,7 +67,7 @@ export const getAllUsersController = async (req: Request, res: Response) => {
     if (!requesterId) {
       return res.status(401).json({
         success: false,
-        message: 'Unauthorized',
+        message: 'Tidak terautentikasi',
       });
     }
 
@@ -80,7 +80,7 @@ export const getAllUsersController = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(403).json({
       success: false,
-      message: error instanceof Error ? error.message : 'Access denied',
+      message: error instanceof Error ? error.message : 'Akses ditolak',
     });
   }
 };
@@ -91,7 +91,7 @@ export const deleteUserController = async (req: Request, res: Response) => {
     if (!requesterId) {
       return res.status(401).json({
         success: false,
-        message: 'Unauthorized',
+        message: 'Tidak terautentikasi',
       });
     }
 
@@ -101,12 +101,12 @@ export const deleteUserController = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: 'User deleted successfully',
+      message: 'Pengguna berhasil dihapus',
     });
   } catch (error) {
     res.status(403).json({
       success: false,
-      message: error instanceof Error ? error.message : 'Access denied',
+      message: error instanceof Error ? error.message : 'Akses ditolak',
     });
   }
 };
@@ -117,7 +117,7 @@ export const changeUserRoleController = async (req: Request, res: Response) => {
     if (!requesterId) {
       return res.status(401).json({
         success: false,
-        message: 'Unauthorized',
+        message: 'Tidak terautentikasi',
       });
     }
 
@@ -128,12 +128,12 @@ export const changeUserRoleController = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: 'User role updated successfully',
+      message: 'Role pengguna berhasil diperbarui',
     });
   } catch (error) {
     res.status(403).json({
       success: false,
-      message: error instanceof Error ? error.message : 'Access denied',
+      message: error instanceof Error ? error.message : 'Akses ditolak',
     });
   }
 };
@@ -144,7 +144,7 @@ export const getUsersByRoleController = async (req: Request, res: Response) => {
     if (!requesterId) {
       return res.status(401).json({
         success: false,
-        message: 'Unauthorized',
+        message: 'Tidak terautentikasi',
       });
     }
 
@@ -159,7 +159,7 @@ export const getUsersByRoleController = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(403).json({
       success: false,
-      message: error instanceof Error ? error.message : 'Access denied',
+      message: error instanceof Error ? error.message : 'Akses ditolak',
     });
   }
 };
@@ -170,7 +170,7 @@ export const updateUserInfoController = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: 'Unauthorized',
+        message: 'Tidak terautentikasi',
       });
     }
 
@@ -180,13 +180,13 @@ export const updateUserInfoController = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: 'User information updated successfully',
+      message: 'Informasi pengguna berhasil diperbarui',
       data: user,
     });
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: error instanceof Error ? error.message : 'Update failed',
+      message: error instanceof Error ? error.message : 'Pembaruan gagal',
     });
   }
 };

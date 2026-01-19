@@ -1,7 +1,7 @@
 import { UUID } from 'node:crypto';
 import { prisma } from '../../config/prisma.config';
 import { MenteeList, MonevRecord, MonevRecords } from '../../types/jejak/mentor.type';
-import { recordStatus, periodStatus } from '@prisma/client';
+import { recordStatus, periodStatus, monevCategory } from '@prisma/client';
 
 async function assignMenteesToMentor(mentorId: UUID, userIds: UUID[], semester: number): Promise<void> {
     await prisma.monev_periods.createMany({
@@ -45,13 +45,41 @@ async function menteeList(
 }
 
 async function approveMenteeProgress(record_id: UUID, status: recordStatus, notes?: string): Promise<void> {
-    await prisma.monev_records.update({
+    // Update the record status
+    const updatedRecord = await prisma.monev_records.update({
         where: { record_id },
         data: {
             status,
             ...(notes !== undefined && { reviewer_notes: notes }),
+            ...(status === recordStatus.Verified && { verified_at: new Date() })
         },
+        include: {
+            period: {
+                include: {
+                    monev_records: true
+                }
+            }
+        }
     });
+
+    // Check if all categories have at least one verified record
+    const period = updatedRecord.period;
+    const allCategories = Object.values(monevCategory);
+    const verifiedCategories = new Set(
+        period.monev_records
+            .filter(record => record.status === recordStatus.Verified)
+            .map(record => record.category)
+    );
+
+    // If all categories have verified records, mark period as complete
+    const hasAllCategories = allCategories.every(category => verifiedCategories.has(category));
+
+    if (hasAllCategories && period.status === periodStatus.Incomplete) {
+        await prisma.monev_periods.update({
+            where: { period_id: period.period_id },
+            data: { status: periodStatus.Complete }
+        });
+    }
 }
 
 async function listMenteeMonevRecords(period_id: UUID): Promise<MonevRecords> {

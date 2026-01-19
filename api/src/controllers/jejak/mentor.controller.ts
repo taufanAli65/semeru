@@ -12,9 +12,9 @@ export const assignMenteesController = async (req: Request, res: Response) => {
 
 		await assignMenteesToMentor(mentorId as UUID, userIds as UUID[], semester as number);
 
-		res.status(201).json({ success: true, message: 'Mentees assigned to mentor successfully' });
+		res.status(201).json({ success: true, message: 'Mahasiswa berhasil ditugaskan ke mentor' });
 	} catch (error) {
-		res.status(400).json({ success: false, message: error instanceof Error ? error.message : 'Assign mentees failed' });
+		res.status(400).json({ success: false, message: error instanceof Error ? error.message : 'Gagal menugaskan mahasiswa ke mentor' });
 	}
 };
 
@@ -31,7 +31,7 @@ export const getMenteeListController = async (req: Request, res: Response) => {
 
 		res.status(200).json({ success: true, data: items, meta });
 	} catch (error) {
-		res.status(400).json({ success: false, message: error instanceof Error ? error.message : 'Failed to fetch mentee list' });
+		res.status(400).json({ success: false, message: error instanceof Error ? error.message : 'Gagal mengambil daftar mahasiswa' });
 	}
 };
 
@@ -42,12 +42,12 @@ export const approveMenteeProgressController = async (req: Request, res: Respons
 
 		await approveMenteeProgress(record_id as UUID, status as recordStatus, notes as string | undefined);
 
-		res.status(200).json({ success: true, message: 'Monev record updated successfully' });
+		res.status(200).json({ success: true, message: 'Record monev berhasil diperbarui' });
 	} catch (error) {
 		if (error instanceof Error && error.message.toLowerCase().includes('not found')) {
 			return res.status(404).json({ success: false, message: error.message });
 		}
-		res.status(400).json({ success: false, message: error instanceof Error ? error.message : 'Approve failed' });
+		res.status(400).json({ success: false, message: error instanceof Error ? error.message : 'Persetujuan gagal' });
 	}
 };
 
@@ -59,7 +59,7 @@ export const listMonevRecordsController = async (req: Request, res: Response) =>
 
 		res.status(200).json({ success: true, data: records });
 	} catch (error) {
-		res.status(400).json({ success: false, message: error instanceof Error ? error.message : 'Failed to list records' });
+		res.status(400).json({ success: false, message: error instanceof Error ? error.message : 'Gagal mengambil record' });
 	}
 };
 
@@ -74,6 +74,6 @@ export const getMonevRecordController = async (req: Request, res: Response) => {
 		if (error instanceof Error && error.message.toLowerCase().includes('not found')) {
 			return res.status(404).json({ success: false, message: error.message });
 		}
-		res.status(400).json({ success: false, message: error instanceof Error ? error.message : 'Failed to get record' });
+		res.status(400).json({ success: false, message: error instanceof Error ? error.message : 'Gagal mengambil record' });
 	}
 };

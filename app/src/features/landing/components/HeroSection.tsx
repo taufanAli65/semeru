@@ -40,7 +40,7 @@ export const HeroSection = () => {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-1">Monitoring Akademik</h3>
+                      <h3 className="font-semibold text-gray-900 mb-1">Monitoring Akademik(JEJAK)</h3>
                       <p className="text-sm text-gray-500">Pantau perkembangan realtime</p>
                     </div>
                   </div>
@@ -52,7 +52,7 @@ export const HeroSection = () => {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-1">Manajemen Kompetisi</h3>
+                      <h3 className="font-semibold text-gray-900 mb-1">Manajemen Kompetisi(LAGA)</h3>
                       <p className="text-sm text-gray-500">Kelola event & peserta</p>
                     </div>
                   </div>

@@ -6,3 +6,4 @@ dist/
 logs/
 uploads/
 .env.prod
+docs/dev

@@ -232,6 +232,12 @@ api/
 
 ## API Endpoints
 
+For comprehensive API documentation including detailed request/response examples, authentication, and usage guides, see:
+
+📖 **[Complete API Documentation](../docs/api-doc.md)**
+
+### Quick API Reference
+
 ### Authentication Routes (`/api/v1/auth`)
 
 | Method | Endpoint | Description | Access |
@@ -244,6 +250,27 @@ api/
 | DELETE | `/user/:userId` | Delete user | SuperAdmin |
 | PATCH | `/user/:userId/role` | Change user role | SuperAdmin |
 | GET | `/users/role/:role` | Get users by role | SuperAdmin |
+
+### Monev (Monitoring & Evaluation) Routes (`/api/v1/jejak`)
+
+#### Mentor Endpoints
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|---------|
+| POST | `/mentor/:mentorId/mentees` | Assign mentees to mentor | Admin, Mentor |
+| GET | `/mentor/:mentorId/mentees` | Get mentee list | Admin, Mentor |
+| PATCH | `/mentor/records/:record_id` | Approve/reject records | Admin, Mentor |
+| GET | `/mentor/period/:period_id/records` | Get period records | Admin, Mentor |
+| GET | `/mentor/records/:record_id` | Get single record | Admin, Mentor |
+
+#### Mentee Endpoints
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|---------|
+| POST | `/mentee/records` | Add single record | Mahasiswa |
+| POST | `/mentee/records/bulk` | Add bulk records | Mahasiswa |
+| GET | `/mentee/records/current` | Get current period | Mahasiswa |
+| PATCH | `/mentee/records/:record_id` | Update record | Mahasiswa |
+| DELETE | `/mentee/records/:record_id` | Delete record | Mahasiswa |
+| GET | `/mentee/records/past` | Get past records | Mahasiswa |
 
 ### Health Check
 | Method | Endpoint | Description | Access |
